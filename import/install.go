@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Database connection string for your remote PostgreSQL database
-	connStr := "postgres://username:password@remote-host:port/database?sslmode=disable"
+	connStr := ""
 
 	// Open database connection
 	db, err := sql.Open("postgres", connStr)
