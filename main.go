@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"super-octo-engine.com/octo/data"
 	"super-octo-engine.com/octo/handlers"
 	"super-octo-engine.com/octo/logger"
 )
@@ -32,12 +34,24 @@ func main() {
 	// Initialize logger
 	logInstance := initializeLogger()
 
-	// Movie handler initializer
-	movieHandler := handlers.MovieHandler{}
+	// Initialize repositories
+	movieRepo, err := data.NewMovieRepository(db, logInstance)
+	if err != nil {
+		log.Fatalf("Failed to initialize movie repository: %v", err)
+	}
 
-	http.HandleFunc("/api/movies/top", movieHandler.GetTopMovies)
+	// Initialize handlers
+	movieHandler := handlers.NewMovieHandler(movieRepo, logInstance)
+	// authHandler := handlers.NewAuthHandler(userStorage, jwt, logInstance)
+
+	// Set up routes
 	http.HandleFunc("/api/movies/random", movieHandler.GetRandomMovies)
-
+	http.HandleFunc("/api/movies/top", movieHandler.GetTopMovies)
+	http.HandleFunc("/api/movies/search", movieHandler.SearchMovies)
+	http.HandleFunc("/api/movies/", movieHandler.GetMovie)
+	http.HandleFunc("/api/genres", movieHandler.GetGenres)
+	http.HandleFunc("/api/account/register", movieHandler.GetGenres)
+	http.HandleFunc("/api/account/authenticate", movieHandler.GetGenres)
 	http.Handle("/", http.FileServer(http.Dir("public")))
 
 	// Start server
